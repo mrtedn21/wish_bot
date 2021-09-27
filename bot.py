@@ -3,10 +3,17 @@ import os
 from telegram.ext import Updater, CommandHandler
 from dotenv import load_dotenv
 
+from db import engine
+
 load_dotenv()
 
 
 def add(update, context):
+    insert_wish_query = "INSERT INTO wish(name) values('some value')"
+
+    with engine.connect() as conn:
+        conn.execute(insert_wish_query)
+
     context.bot.send_message(chat_id=update.effective_chat.id, text='ok')
 
 
