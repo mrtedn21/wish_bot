@@ -1,6 +1,7 @@
 import os
 
 from telegram.ext import Updater, CommandHandler
+from sqlalchemy import text
 from dotenv import load_dotenv
 
 from db import engine
@@ -9,10 +10,17 @@ load_dotenv()
 
 
 def add(update, context):
-    insert_wish_query = "INSERT INTO wish(name) values('some value')"
+    args = context.args
+
+    if len(args):
+        wish_value = ' '.join(args)
+    else:
+        context.bot.send_message(chat_id=update.effective_chat.id, text='write wish')
+        return
 
     with engine.connect() as conn:
-        conn.execute(insert_wish_query)
+        insert_wish_query = text("INSERT INTO wish(name) values(:name)")
+        conn.execute(insert_wish_query, name=wish_value)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text='ok')
 
