@@ -6,5 +6,3 @@ engine = create_engine('postgresql+psycopg2://mrtedn:123@localhost/wish_db')
 
 if __name__ == '__main__':
     engine.execute(create_wish_table_query)
-
-engine.execute("insert into wish values('qwe')")
