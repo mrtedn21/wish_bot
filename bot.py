@@ -11,6 +11,8 @@ load_dotenv()
 
 def add(update, context):
     args = context.args
+    user = update.message.from_user
+    username = user['username']
 
     if len(args):
         wish_value = ' '.join(args)
@@ -19,8 +21,8 @@ def add(update, context):
         return
 
     with engine.connect() as conn:
-        insert_wish_query = text("INSERT INTO wish(name) values(:name)")
-        conn.execute(insert_wish_query, name=wish_value)
+        insert_wish_query = text("INSERT INTO wish(username, text) values(:username, :text)")
+        conn.execute(insert_wish_query, username=username, text=wish_value)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text='ok')
 
