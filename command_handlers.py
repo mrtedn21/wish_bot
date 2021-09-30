@@ -39,8 +39,10 @@ def show_command_handler(update, context):
         select_query = text("SELECT * FROM wish WHERE first_name = :first_name")
         result = conn.execute(select_query, first_name=first_name_for_showing)
 
+        index = 0
         for wish in result:
-            resulting_message = f'{resulting_message}\n{wish[1]}'
+            index += 1
+            resulting_message = f'{resulting_message}\n{index}. {wish[1]}'
 
         if not resulting_message:
             context.bot.send_message(chat_id=update.effective_chat.id, text='not found wishes for this user')
