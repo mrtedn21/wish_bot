@@ -36,7 +36,7 @@ def show_command_handler(update, context):
     resulting_message = ''
 
     with engine.connect() as conn:
-        select_query = text("SELECT * FROM wish WHERE LOWER(first_name) = LOWER(:first_name)")
+        select_query = text("SELECT * FROM wish WHERE LOWER(first_name) = LOWER(:first_name) ORDER BY text")
         result = conn.execute(select_query, first_name=first_name_for_showing)
 
         index = 0
@@ -49,3 +49,39 @@ def show_command_handler(update, context):
             return
 
     context.bot.send_message(chat_id=update.effective_chat.id, text=resulting_message)
+
+
+def delete_command_handler(update, context):
+    args = context.args
+    if len(args) < 2:
+        context.bot.send_message(chat_id=update.effective_chat.id, text='not all parameters were passed')
+        return
+
+    first_name = args[0]
+    try:
+        wish_index_for_deleting = int(args[1])
+    except ValueError:
+        context.bot.send_message(chat_id=update.effective_chat.id, text='invalid index')
+        return
+
+    with engine.connect() as conn:
+        delete_query = text("""
+            DELETE FROM wish
+            WHERE EXISTS (
+                SELECT 1 FROM (
+                    SELECT
+                        first_name,
+                        text,
+                        ROW_NUMBER() OVER(PARTITION BY first_name ORDER BY text) AS rn
+                    FROM wish
+                    WHERE LOWER(first_name) = LOWER(:first_name)
+                ) child
+                WHERE rn = :index
+                  AND child.first_name = wish.first_name
+                  AND child.text = wish.text
+            )
+        """)
+
+        conn.execute(delete_query, first_name=first_name, index=wish_index_for_deleting)
+
+    context.bot.send_message(chat_id=update.effective_chat.id, text='ok')

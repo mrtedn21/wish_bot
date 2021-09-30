@@ -3,7 +3,7 @@ import os
 from telegram.ext import Updater, CommandHandler
 from dotenv import load_dotenv
 
-from command_handlers import add_command_handler, show_command_handler
+from command_handlers import add_command_handler, show_command_handler, delete_command_handler
 
 load_dotenv()
 
@@ -16,6 +16,9 @@ add_handler = CommandHandler('add', add_command_handler)
 dispatcher.add_handler(add_handler)
 
 show_handler = CommandHandler('show', show_command_handler)
+dispatcher.add_handler(show_handler)
+
+show_handler = CommandHandler('delete', delete_command_handler)
 dispatcher.add_handler(show_handler)
 
 updater.start_polling()
