@@ -42,4 +42,8 @@ def show_command_handler(update, context):
         for wish in result:
             resulting_message = f'{resulting_message}\n{wish[1]}'
 
+        if not resulting_message:
+            context.bot.send_message(chat_id=update.effective_chat.id, text='not found wishes for this user')
+            return
+
     context.bot.send_message(chat_id=update.effective_chat.id, text=resulting_message)
