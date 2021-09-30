@@ -6,7 +6,7 @@ from db import engine
 def add_command_handler(update, context):
     args = context.args
     user = update.message.from_user
-    username = user['username']
+    first_name = user['first_name']
 
     if len(args):
         wish_value = ' '.join(args)
@@ -15,8 +15,8 @@ def add_command_handler(update, context):
         return
 
     with engine.connect() as conn:
-        insert_wish_query = text("INSERT INTO wish(username, text) values(:username, :text)")
-        conn.execute(insert_wish_query, username=username, text=wish_value)
+        insert_wish_query = text("INSERT INTO wish(first_name, text) values(:first_name, :text)")
+        conn.execute(insert_wish_query, first_name=first_name, text=wish_value)
 
     context.bot.send_message(chat_id=update.effective_chat.id, text='ok')
 
@@ -27,17 +27,18 @@ def show_command_handler(update, context):
     if not len(args):
         context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text='write username, whose wishes you want to watch'
+            text='write first_name, whose wishes you want to watch'
         )
         return
 
-    username_for_showing = args[0]
+    first_name_for_showing = args[0]
 
     resulting_message = ''
 
     with engine.connect() as conn:
-        select_query = text("SELECT * FROM wish WHERE username = :username")
-        result = conn.execute(select_query, username=username_for_showing)
+        select_query = text("SELECT * FROM wish WHERE first_name = :first_name")
+        result = conn.execute(select_query, first_name=first_name_for_showing)
+
         for wish in result:
             resulting_message = f'{resulting_message}\n{wish[1]}'
 

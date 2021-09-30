@@ -2,9 +2,9 @@ from sqlalchemy import create_engine
 
 create_wish_table_query = \
     'CREATE TABLE wish(' \
-    '   username VARCHAR(256),' \
+    '   first_name VARCHAR(256),' \
     '   text VARCHAR(256),' \
-    '   PRIMARY KEY(text)' \
+    '   PRIMARY KEY(first_name, text)' \
     ')'
 
 engine = create_engine('postgresql+psycopg2://mrtedn:123@localhost/wish_db')
