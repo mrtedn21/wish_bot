@@ -36,7 +36,7 @@ def show_command_handler(update, context):
     resulting_message = ''
 
     with engine.connect() as conn:
-        select_query = text("SELECT * FROM wish WHERE first_name = :first_name")
+        select_query = text("SELECT * FROM wish WHERE LOWER(first_name) = LOWER(:first_name)")
         result = conn.execute(select_query, first_name=first_name_for_showing)
 
         index = 0
