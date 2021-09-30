@@ -7,7 +7,18 @@ create_wish_table_query = """
        PRIMARY KEY(first_name, text)
     )"""
 
+create_wish_with_index_view_query = """
+    CREATE OR REPLACE VIEW wish_with_index AS
+    SELECT
+        first_name,
+        text,
+        ROW_NUMBER() OVER(PARTITION BY first_name ORDER BY text) AS rn
+    FROM wish
+    ORDER BY first_name, text;
+"""
+
 engine = create_engine('postgresql+psycopg2://mrtedn:123@localhost/wish_db')
 
 if __name__ == '__main__':
     engine.execute(create_wish_table_query)
+    engine.execute(create_wish_with_index_view_query)

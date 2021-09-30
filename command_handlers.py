@@ -36,13 +36,12 @@ def show_command_handler(update, context):
     resulting_message = ''
 
     with engine.connect() as conn:
-        select_query = text("SELECT * FROM wish WHERE LOWER(first_name) = LOWER(:first_name) ORDER BY text")
+        select_query = text("SELECT * FROM wish_with_index WHERE LOWER(first_name) = LOWER(:first_name)")
         result = conn.execute(select_query, first_name=first_name_for_showing)
 
-        index = 0
+        # wish[1] is text of wish, wish[2] is rn of wish (rn that calculate for each first_name)
         for wish in result:
-            index += 1
-            resulting_message = f'{resulting_message}\n{index}. {wish[1]}'
+            resulting_message = f'{resulting_message}\n{wish[2]}. {wish[1]}'
 
         if not resulting_message:
             context.bot.send_message(chat_id=update.effective_chat.id, text='not found wishes for this user')
@@ -66,19 +65,14 @@ def delete_command_handler(update, context):
 
     with engine.connect() as conn:
         delete_query = text("""
-            DELETE FROM wish
-            WHERE EXISTS (
-                SELECT 1 FROM (
-                    SELECT
-                        first_name,
-                        text,
-                        ROW_NUMBER() OVER(PARTITION BY first_name ORDER BY text) AS rn
-                    FROM wish
-                    WHERE LOWER(first_name) = LOWER(:first_name)
-                ) child
-                WHERE rn = :index
-                  AND child.first_name = wish.first_name
-                  AND child.text = wish.text
+            DELETE FROM wish w
+            WHERE EXISTS(
+                SELECT 1
+                FROM wish_with_index wi
+                WHERE wi.first_name = w.first_name
+                  AND wi.text = w.text
+                  AND LOWER(wi.first_name) = LOWER(:first_name)
+                  AND wi.rn = :index
             )
         """)
 
