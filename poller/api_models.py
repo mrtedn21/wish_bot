@@ -28,3 +28,6 @@ class ApiResponse:
     def __init__(self, obj):
         self.ok: str = obj['ok']
         self.result: list[ApiUpdate] = [ApiUpdate(i) for i in obj['result']]
+
+    def last_update_id(self):
+        return self.result[-1].update_id
