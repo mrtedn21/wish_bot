@@ -27,7 +27,11 @@ class ApiUpdate:
 class ApiResponse:
     def __init__(self, obj):
         self.ok: str = obj['ok']
-        self.result: list[ApiUpdate] = [ApiUpdate(i) for i in obj['result']]
+        if obj.get('result', []):
+            self.result: list[ApiUpdate] = [ApiUpdate(i) for i in obj['result']]
+        else:
+            self.result = []
 
     def last_update_id(self):
-        return self.result[-1].update_id
+        if self.result:
+            return self.result[-1].update_id

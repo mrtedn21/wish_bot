@@ -22,6 +22,9 @@ async def get_updates(session: aiohttp.ClientSession):
     async with session.get(function_url) as res:
         obj = await res.json()
         response = ApiResponse(obj)
-        print(response.result[0].message.text)
+        if response.result:
+            for update in response.result:
+                print(await res.text())
+                print(update.message.text)
 
         update_id = response.last_update_id()
