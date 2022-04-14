@@ -25,6 +25,7 @@ async def get_updates(session: aiohttp.ClientSession):
         if response.result:
             for update in response.result:
                 await send_message(session, update.message.chat.id, update.message.text)
+                # TODO make checking if result of sending message is ok
 
         update_id = response.last_update_id()
 
