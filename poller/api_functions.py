@@ -13,18 +13,25 @@ update_id = None
 
 async def get_updates(session: aiohttp.ClientSession):
     global update_id
-    timeout_parameter = 'timeout=60'
-    function_url = f'{base_url}/getUpdates?{timeout_parameter}'
+    timeout_param = 'timeout=60'
+    function_url = f'{base_url}/getUpdates?{timeout_param}'
     if update_id:
-        offset_parameter = f'offset={update_id + 1}'
-        function_url = f'{function_url}&{offset_parameter}'
+        offset_param = f'offset={update_id + 1}'
+        function_url = f'{function_url}&{offset_param}'
 
     async with session.get(function_url) as res:
         obj = await res.json()
         response = ApiResponse(obj)
         if response.result:
             for update in response.result:
-                print(await res.text())
-                print(update.message.text)
+                await send_message(session, update.message.chat.id, update.message.text)
 
         update_id = response.last_update_id()
+
+
+async def send_message(session: aiohttp.ClientSession, chat_id: int, text: str):
+    chat_id_param = f'chat_id={chat_id}'
+    text_param = f'text={text}'
+    function_url = f'{base_url}/sendMessage?{chat_id_param}&{text_param}'
+    async with session.get(function_url) as res:
+        obj = await res.json()

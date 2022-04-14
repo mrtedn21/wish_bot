@@ -9,10 +9,20 @@ class Entity:
         self.type = obj['type']
 
 
+class Chat:
+    def __init__(self, obj):
+        self.id: int = obj['id']
+        self.username: str = obj['username']
+        self.type: str = obj['type']
+        self.first_name: str = obj.get('first_name', None)
+        self.last_name: str = obj.get('last_name', None)
+
+
 class Message:
     def __init__(self, obj):
         self.message_id: int = obj['message_id']
         self.text: str = obj['text']
+        self.chat: Chat = Chat(obj['chat'])
 
         entities = obj.get('entities', [])
         self.entities: list[Entity] = [Entity(i) for i in entities]
