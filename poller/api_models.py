@@ -40,7 +40,7 @@ class ApiResponse:
         if obj.get('result', []):
             self.result: list[ApiUpdate] = [ApiUpdate(i) for i in obj['result']]
         else:
-            self.result = []
+            self.result = None
 
     def last_update_id(self):
         if self.result:
