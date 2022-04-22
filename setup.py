@@ -12,6 +12,8 @@ setup(
     install_requires=(
         'aiohttp',
         'aiodns',
+        'pika',
+        'msgpack',
     ),
     classifiers=[
         "Programming Language :: Python :: 3",
