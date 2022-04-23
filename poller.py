@@ -4,8 +4,8 @@ from msgpack import packb
 from pika import BlockingConnection
 from pika import ConnectionParameters
 
-from poller.api_functions import get_updates
-from poller.api_functions import send_message
+from api_functions import get_updates
+from api_functions import send_message
 
 connection = BlockingConnection(ConnectionParameters('localhost'))
 channel = connection.channel()

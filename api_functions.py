@@ -2,7 +2,7 @@ from pathlib import Path
 
 import aiohttp
 
-from poller.api_models import ApiResponse
+from api_models import ApiResponse
 
 with open(Path(__file__).parent / 'token', 'r') as f:
     token = f.read()
