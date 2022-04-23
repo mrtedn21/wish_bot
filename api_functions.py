@@ -2,7 +2,7 @@ from pathlib import Path
 
 import aiohttp
 
-from api_models import ApiResponse
+from models import ApiResponse
 
 with open(Path(__file__).parent / 'token', 'r') as f:
     token = f.read()

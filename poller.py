@@ -1,12 +1,11 @@
 import asyncio
 
 import aiohttp
-from msgpack import packb
 from aio_pika import Message
 from aio_pika import connect_robust
 
 from api_functions import get_updates
-from api_functions import send_message
+from models import RabbitMessage
 
 QUEUE_NAME = 'wish'
 
@@ -22,10 +21,13 @@ async def main() -> None:
             response = await get_updates(session)
             if response:
                 for update in response.result:
-                    await send_message(session, update.message.chat.id, update.message.text)
-                    message_body = packb({'message': update.message.text})
+                    rb_message = RabbitMessage(
+                        chat_id=update.message.chat.id,
+                        text=update.message.text,
+                    )
+
                     await channel.default_exchange.publish(
-                        Message(message_body),
+                        Message(rb_message.to_bin()),
                         routing_key=QUEUE_NAME,
                     )
                     # TODO make checking if result of sending message is ok
