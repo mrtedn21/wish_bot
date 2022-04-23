@@ -1,21 +1,24 @@
+import asyncio
+
 from msgpack import unpackb
-from pika import BlockingConnection
-from pika import ConnectionParameters
+from aio_pika import connect_robust
 
-connection = BlockingConnection(ConnectionParameters('localhost'))
-channel = connection.channel()
 QUEUE_NAME = 'wish'
-channel.queue_declare(queue=QUEUE_NAME)
 
 
-def callback(ch, method, properties, body):
-    print(unpackb(body))
+async def main() -> None:
+    connection = await connect_robust(host='localhost')
+
+    async with connection:
+        channel = await connection.channel()
+        await channel.set_qos(prefetch_count=10)
+        queue = await channel.declare_queue(QUEUE_NAME)
+
+        async with queue.iterator() as queue_iter:
+            async for message in queue_iter:
+                async with message.process():
+                    print(unpackb(message.body))
 
 
-channel.basic_consume(
-    queue=QUEUE_NAME,
-    auto_ack=True,
-    on_message_callback=callback
-)
-
-channel.start_consuming()
+if __name__ == '__main__':
+    asyncio.run(main())

@@ -12,7 +12,7 @@ setup(
     install_requires=(
         'aiohttp',
         'aiodns',
-        'pika',
+        'aio-pika',
         'msgpack',
     ),
     classifiers=[
