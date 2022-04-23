@@ -11,7 +11,7 @@ base_url = f'https://api.telegram.org/{token}'
 update_id = None
 
 
-async def get_updates(session: aiohttp.ClientSession):
+async def get_updates(session: aiohttp.ClientSession) -> ApiResponse:
     global update_id
     timeout_param = 'timeout=60'
     function_url = f'{base_url}/getUpdates?{timeout_param}'
@@ -28,9 +28,8 @@ async def get_updates(session: aiohttp.ClientSession):
         return None
 
 
-async def send_message(session: aiohttp.ClientSession, chat_id: int, text: str):
+async def send_message(session: aiohttp.ClientSession, chat_id: int, text: str) -> None:
     chat_id_param = f'chat_id={chat_id}'
     text_param = f'text={text}'
     function_url = f'{base_url}/sendMessage?{chat_id_param}&{text_param}'
-    async with session.get(function_url) as res:
-        obj = await res.json()
+    await session.get(function_url)
