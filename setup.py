@@ -14,6 +14,8 @@ setup(
         'aiodns',
         'aio-pika',
         'msgpack',
+        'SQLAlchemy',
+        'asyncpg',
     ),
     classifiers=[
         "Programming Language :: Python :: 3",
