@@ -2,7 +2,7 @@ from pathlib import Path
 
 import aiohttp
 
-from models import ApiResponse
+from models.telegram import ApiResponse
 
 with open(Path(__file__).parent / 'token', 'r') as f:
     token = f.read()

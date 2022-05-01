@@ -1,24 +1,4 @@
-# First part of this file describes models for app self
-import msgpack
-
-
-class RabbitMessage:
-    def __init__(self, text=None, chat_id=None, bin_data=None):
-        if bin_data:
-            message_dict = msgpack.unpackb(bin_data)
-            self.text = message_dict['text']
-            self.chat_id = message_dict['chat_id']
-        elif text and chat_id:
-            self.text = text
-            self.chat_id = chat_id
-        else:
-            raise TypeError('init must accept bin_data or text and chat_id')
-
-    def to_bin(self):
-        return msgpack.packb(self.__dict__)
-
-
-# Second part of this file describes objects from Telegram Bot API.
+# This file describes objects from Telegram Bot API.
 # There are only objects that needs for this app. And fields
 # of these models are only that needs for this app too. Therefore,
 # original API has more models and fields

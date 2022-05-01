@@ -5,7 +5,7 @@ from aio_pika import Message
 from aio_pika import connect_robust
 
 from api_functions import get_updates
-from models import RabbitMessage
+from models.rabbit import RabbitMessage
 
 QUEUE_NAME = 'wish'
 

@@ -4,7 +4,7 @@ import aiohttp
 from aio_pika import connect_robust
 
 from api_functions import send_message
-from models import RabbitMessage
+from models.rabbit import RabbitMessage
 
 QUEUE_NAME = 'wish'
 
