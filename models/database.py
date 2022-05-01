@@ -23,14 +23,16 @@ class Wish(Base):
     text = Column(String(256))
 
 
-# This part of file needs to create all table
+# This part of file needs to create all tables
 # Therefore it calls only if file execute directly
+
 
 async def main():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
 
     await engine.dispose()
+
 
 if __name__ == '__main__':
     asyncio.run(main())
