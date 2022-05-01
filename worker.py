@@ -4,7 +4,10 @@ import aiohttp
 from aio_pika import connect_robust
 
 from api_functions import send_message
+from models.database import engine
 from models.rabbit import RabbitMessage
+from services import create_wish
+
 
 QUEUE_NAME = 'wish'
 
@@ -27,6 +30,9 @@ async def main() -> None:
                         chat_id=rb_message.chat_id,
                         text=rb_message.text
                     )
+                    await create_wish('test', rb_message.text)
+
+    await engine.dispose()
 
 
 if __name__ == '__main__':
