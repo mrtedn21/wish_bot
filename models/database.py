@@ -19,11 +19,19 @@ async_session = sessionmaker(
 
 
 class Wish(Base):
-    __tablename__ = 'wish'
+    __tablename__ = 'wishes'
     id = Column(Integer, primary_key=True)
     username = Column(String(64))
     text = Column(String(256))
     private = Column(Boolean, default=False)
+
+
+class PrivateUser(Base):
+    """ there are usernames in user and private_user.
+    'private_user' will see private messages of 'user' """
+    __tablename__ = 'private_users'
+    user = Column(String(64), primary_key=True)
+    private_user = Column(String(64), primary_key=True)
 
 
 # This part of file needs to create all tables
@@ -35,8 +43,8 @@ async def main():
         await conn.run_sync(Base.metadata.create_all)
 
         await conn.execute(text(
-            'CREATE UNIQUE INDEX ix_wish_username_text '
-            'ON wish(username, text)'
+            'CREATE UNIQUE INDEX ix_wishes_username_text '
+            'ON wishes(username, text)'
         ))
 
     await engine.dispose()

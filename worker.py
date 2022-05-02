@@ -6,6 +6,7 @@ from aio_pika import connect_robust
 from api_functions import send_message
 from models.database import engine
 from models.rabbit import RabbitMessage
+from services import create_private_user
 from services import create_wish
 from services import delete_wish_by_id
 from services import get_wishes_by_username
@@ -94,6 +95,23 @@ async def delete_command(
     )
 
 
+async def add_private_user_command(
+        chat_id: int,
+        username: str,
+        private_username: str,
+        session: aiohttp.ClientSession) -> None:
+    await create_private_user(
+        username,
+        private_username
+    )
+
+    await send_message(
+        session=session,
+        chat_id=chat_id,
+        text=f'private user successfully added',
+    )
+
+
 async def message_handler(
         rb_message: RabbitMessage,
         session: aiohttp.ClientSession) -> None:
@@ -125,6 +143,14 @@ async def message_handler(
             wish=' '.join(commands[1:]),
             session=session,
             private=True
+        )
+    if command_name == 'addpu':
+        # shortening for add private user
+        await add_private_user_command(
+            chat_id=rb_message.chat_id,
+            username=rb_message.username,
+            private_username=first_argument,
+            session=session,
         )
     elif command_name == 'show':
         await show_command(

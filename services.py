@@ -1,10 +1,12 @@
 # This file store db logic, work with models, etc.
-from models.database import Wish
-from models.database import async_session
 from sqlalchemy import delete
 from sqlalchemy import insert
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
+
+from models.database import PrivateUser
+from models.database import Wish
+from models.database import async_session
 
 
 async def create_wish(username: str, text: str, private: bool) -> bool:
@@ -40,5 +42,16 @@ async def delete_wish_by_id(pk: int) -> None:
         await session.execute(
             delete(Wish)
                 .where(Wish.id == pk)
+        )
+        await session.commit()
+
+
+async def create_private_user(user: str, private_user: str) -> None:
+    async with async_session() as session:
+        await session.execute(
+            insert(PrivateUser).values(
+                user=user,
+                private_user=private_user
+            )
         )
         await session.commit()
