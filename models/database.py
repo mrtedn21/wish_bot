@@ -19,7 +19,7 @@ async_session = sessionmaker(
 class Wish(Base):
     __tablename__ = 'wish'
     id = Column(Integer, primary_key=True)
-    user = Column(String(64))
+    username = Column(String(64))
     text = Column(String(256))
 
 
