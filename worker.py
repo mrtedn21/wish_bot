@@ -8,8 +8,42 @@ from models.database import engine
 from models.rabbit import RabbitMessage
 from services import create_wish
 
-
 QUEUE_NAME = 'wish'
+
+
+async def add_command(
+        chat_id: int,
+        username: str,
+        wish: str,
+        session: aiohttp.ClientSession):
+    await create_wish(
+        username=username,
+        text=wish,
+    )
+    await send_message(
+        session=session,
+        chat_id=chat_id,
+        text='successfully added',
+    )
+
+
+async def message_handler(
+        rb_message: RabbitMessage,
+        session: aiohttp.ClientSession) -> None:
+    if not rb_message.text.startswith('/'):
+        return
+
+    commands = rb_message.text[1:].split(' ')
+    # remove elements = spaces. Need for case if user will
+    # write commands with several spaces between commands
+    commands = [command for command in commands if command]
+    if commands[0] == 'add':
+        await add_command(
+            chat_id=rb_message.chat_id,
+            username=rb_message.username,
+            wish=' '.join(commands[1:]),
+            session=session
+        )
 
 
 async def main() -> None:
@@ -24,13 +58,8 @@ async def main() -> None:
             async for message in queue_iter:
                 async with message.process():
                     rb_message = RabbitMessage(bin_data=message.body)
-                    print(rb_message.text)
-                    await send_message(
-                        session=session,
-                        chat_id=rb_message.chat_id,
-                        text=rb_message.text
-                    )
-                    await create_wish('test', rb_message.text)
+                    await message_handler(rb_message, session)
+                    # TODO check if there needs of acknowledge
 
     await engine.dispose()
 
