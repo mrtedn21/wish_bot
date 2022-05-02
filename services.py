@@ -3,14 +3,20 @@ from models.database import Wish
 from models.database import async_session
 from sqlalchemy import insert
 from sqlalchemy import select
+from sqlalchemy.exc import IntegrityError
 
 
-async def create_wish(username, text):
+async def create_wish(username: str, text: str) -> bool:
+    """ If error, function return False """
     async with async_session() as session:
-        await session.execute(
-            insert(Wish).values(username=username, text=text)
-        )
+        try:
+            await session.execute(
+                insert(Wish).values(username=username, text=text)
+            )
+        except IntegrityError:
+            return False
         await session.commit()
+    return True
 
 
 async def get_wishes_by_username(username: str):

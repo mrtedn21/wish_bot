@@ -33,7 +33,7 @@ async def main():
         await conn.run_sync(Base.metadata.create_all)
 
         await conn.execute(text(
-            'CREATE INDEX ix_wish_username_text '
+            'CREATE UNIQUE INDEX ix_wish_username_text '
             'ON wish(username, text)'
         ))
 
