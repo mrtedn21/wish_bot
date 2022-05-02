@@ -91,6 +91,9 @@ async def delete_private_user(username: str, private_username: str):
     async with async_session() as session:
         await session.execute(
             delete(PrivateUser)
-                .where(PrivateUser.private_username == private_username)
+                .where(
+                    (PrivateUser.username == username) &
+                    (PrivateUser.private_username == private_username)
+                )
         )
         await session.commit()
