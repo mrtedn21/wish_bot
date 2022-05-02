@@ -39,12 +39,24 @@ async def add_command(
 
 async def show_command(
         chat_id: int,
-        username: str,
-        session: aiohttp.ClientSession):
+        sender_of_command: str,
+        owner_of_wishes: str,
+        session: aiohttp.ClientSession) -> None:
+    username = owner_of_wishes or sender_of_command
     wishes = await get_wishes_by_username(username)
+
+    if not wishes:
+        await send_message(
+            session=session,
+            chat_id=chat_id,
+            text=f'there are no wishes for user "{username}"',
+        )
+        return
+
     indexed_wishes = []
     for index, wish in enumerate(wishes):
         indexed_wishes.append(f'{index}. {wish}')
+
     result_text = NEW_LINE_CHARACTER.join(indexed_wishes)
     await send_message(
         session=session,
@@ -63,18 +75,24 @@ async def message_handler(
     # remove elements = spaces. Need for case if user will
     # write commands with several spaces between commands
     commands = [command for command in commands if command]
+    try:
+        first_argument = commands[1]
+    except IndexError:
+        first_argument = None
+
     if commands[0].lower() == 'add':
         await add_command(
             chat_id=rb_message.chat_id,
             username=rb_message.username,
             wish=' '.join(commands[1:]),
-            session=session
+            session=session,
         )
     elif commands[0].lower() == 'show':
         await show_command(
             chat_id=rb_message.chat_id,
-            username=rb_message.username,
-            session=session
+            sender_of_command=rb_message.username,
+            owner_of_wishes=first_argument,
+            session=session,
         )
 
 
