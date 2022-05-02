@@ -10,6 +10,7 @@ from services import create_private_user
 from services import create_wish
 from services import delete_private_user
 from services import delete_wish_by_id
+from services import get_private_user
 from services import get_private_users
 from services import get_wishes_by_username
 
@@ -66,7 +67,16 @@ async def show_command(
         owner_of_wishes: str,
         session: aiohttp.ClientSession) -> None:
     username = owner_of_wishes or sender_of_command
-    wishes = await get_wishes_by_username(username)
+
+    if sender_of_command == owner_of_wishes or owner_of_wishes is None:
+        is_private_user = True
+    else:
+        is_private_user = await get_private_user(owner_of_wishes, sender_of_command)
+
+    if is_private_user:
+        wishes = await get_wishes_by_username(username, include_private=True)
+    else:
+        wishes = await get_wishes_by_username(username)
 
     if not wishes:
         await send_message(

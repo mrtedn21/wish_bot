@@ -26,13 +26,23 @@ async def create_wish(username: str, text: str, private: bool) -> bool:
     return True
 
 
-async def get_wishes_by_username(username: str):
+async def get_wishes_by_username(username: str, include_private=False):
     async with async_session() as session:
-        result = await session.execute(
-            select(Wish.id, Wish.text)
-                .where(Wish.username == username)
-                .order_by(Wish.text)
-        )
+        if include_private:
+            result = await session.execute(
+                select(Wish.id, Wish.text)
+                    .where((Wish.username == username))
+                    .order_by(Wish.text)
+            )
+        else:
+            result = await session.execute(
+                select(Wish.id, Wish.text)
+                    .where(
+                        (Wish.username == username) &
+                        (Wish.private is False)
+                    )
+                    .order_by(Wish.text)
+            )
         return result.fetchall()
 
 
@@ -61,6 +71,18 @@ async def get_private_users(username: str):
         result = await session.execute(
             select(PrivateUser.private_username)
                 .where(PrivateUser.username == username)
+        )
+        return result.fetchall()
+
+
+async def get_private_user(username: str, private_username: str):
+    async with async_session() as session:
+        result = await session.execute(
+            select(PrivateUser.username, PrivateUser.private_username)
+                .where(
+                    (PrivateUser.username == username) &
+                    (PrivateUser.private_username == private_username)
+                )
         )
         return result.fetchall()
 
