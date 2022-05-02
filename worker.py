@@ -33,13 +33,13 @@ async def add_command(
         await send_message(
             session=session,
             chat_id=chat_id,
-            text='successfully added',
+            text='Successfully added',
         )
     else:
         await send_message(
             session=session,
             chat_id=chat_id,
-            text='you already have such wish',
+            text='You already have such wish',
         )
 
 
@@ -56,7 +56,7 @@ async def add_private_user_command(
     await send_message(
         session=session,
         chat_id=chat_id,
-        text=f'private user successfully added',
+        text=f'Private user successfully added',
     )
 
 
@@ -72,7 +72,7 @@ async def show_command(
         await send_message(
             session=session,
             chat_id=chat_id,
-            text=f'there are no wishes for user "{username}"',
+            text=f'There are no wishes for user "{username}"',
         )
         return
 
@@ -84,7 +84,7 @@ async def show_command(
     await send_message(
         session=session,
         chat_id=chat_id,
-        text=f'wishes of user "{username}" is:{NEW_LINE_CHARACTER}{result_text}',
+        text=f'Wishes of user "{username}" is:{NEW_LINE_CHARACTER}{result_text}',
     )
 
 
@@ -97,7 +97,7 @@ async def show_private_users_command(
         await send_message(
             session=session,
             chat_id=chat_id,
-            text=f"you doesn't have any private users",
+            text=f"You doesn't have any private users",
         )
         return
 
@@ -108,7 +108,7 @@ async def show_private_users_command(
     await send_message(
         session=session,
         chat_id=chat_id,
-        text=f'your private users:{NEW_LINE_CHARACTER}{private_users_str}',
+        text=f'Your private users:{NEW_LINE_CHARACTER}{private_users_str}',
     )
 
 
@@ -124,7 +124,7 @@ async def delete_command(
         await send_message(
             session=session,
             chat_id=chat_id,
-            text=f'please, enter valid index',
+            text=f'Please, enter valid index',
         )
         return
 
@@ -133,7 +133,7 @@ async def delete_command(
         await send_message(
             session=session,
             chat_id=chat_id,
-            text=f"you want delete wish thad doesn't exists",
+            text=f"You want delete wish thad doesn't exists",
         )
         return
 
@@ -143,7 +143,7 @@ async def delete_command(
     await send_message(
         session=session,
         chat_id=chat_id,
-        text=f'successfully delete wish "{wish_for_deleting[1]}"',
+        text=f'Successfully delete wish "{wish_for_deleting[1]}"',
     )
 
 
@@ -157,7 +157,7 @@ async def delete_private_user_command(
     await send_message(
         session=session,
         chat_id=chat_id,
-        text=f'private user "{private_username}" deleted successfully',
+        text=f'Private user "{private_username}" deleted successfully',
     )
 
 
@@ -232,7 +232,7 @@ async def message_handler(
         await send_message(
             session=session,
             chat_id=rb_message.chat_id,
-            text=f"command doesn't exist",
+            text=f"Command doesn't exist",
         )
 
 
