@@ -171,6 +171,27 @@ async def delete_private_user_command(
     )
 
 
+async def help_command(chat_id: int, session: aiohttp.ClientSession):
+    await send_message(
+        session=session,
+        chat_id=chat_id,
+        text=f"add - add new wish{NEW_LINE_CHARACTER}"
+             f"addpw - add new private wish, that will be seen only"
+             f"by users that you add to your private user list{NEW_LINE_CHARACTER}"
+             f"addpu - add private user to your private user list about"
+             f"which wtitten above{NEW_LINE_CHARACTER}"
+             f"show - if write only show, without any parameters,"
+             f"you will see your wishes. If you will add username"
+             f"as parameter, you will see wishes of this user."
+             f"If you in his private list, you will see all his wishes."
+             f"If there are no you in his private list, you will"
+             f"see only his public wishes{NEW_LINE_CHARACTER}"
+             f"showpu - show private users, that you have added{NEW_LINE_CHARACTER}"
+             f"delete - delete wish by index that you see in"
+             f"'show' command{NEW_LINE_CHARACTER}"
+             f"deletepu - delete user from your private list",
+    )
+
 async def message_handler(
         rb_message: RabbitMessage,
         session: aiohttp.ClientSession) -> None:
@@ -236,6 +257,11 @@ async def message_handler(
             chat_id=rb_message.chat_id,
             username=rb_message.username,
             private_username=first_argument,
+            session=session,
+        )
+    elif command_name == 'help':
+        await help_command(
+            chat_id=rb_message.chat_id,
             session=session,
         )
     else:
