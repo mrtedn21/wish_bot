@@ -42,7 +42,10 @@ async def show_command(
         username: str,
         session: aiohttp.ClientSession):
     wishes = await get_wishes_by_username(username)
-    result_text = NEW_LINE_CHARACTER.join(wishes)
+    indexed_wishes = []
+    for index, wish in enumerate(wishes):
+        indexed_wishes.append(f'{index}. {wish}')
+    result_text = NEW_LINE_CHARACTER.join(indexed_wishes)
     await send_message(
         session=session,
         chat_id=chat_id,
