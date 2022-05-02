@@ -4,6 +4,7 @@ import asyncio
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
+from sqlalchemy import text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import declarative_base
@@ -30,6 +31,11 @@ class Wish(Base):
 async def main():
     async with engine.begin() as conn:
         await conn.run_sync(Base.metadata.create_all)
+
+        await conn.execute(text(
+            'CREATE INDEX ix_wish_username_text '
+            'ON wish(username, text)'
+        ))
 
     await engine.dispose()
 
