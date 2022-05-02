@@ -63,3 +63,12 @@ async def get_private_users(username: str):
                 .where(PrivateUser.user == username)
         )
         return result.fetchall()
+
+
+async def delete_private_user(username: str, private_username: str):
+    async with async_session() as session:
+        await session.execute(
+            delete(PrivateUser)
+                .where(PrivateUser.private_user == private_username)
+        )
+        await session.commit()

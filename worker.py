@@ -8,6 +8,7 @@ from models.database import engine
 from models.rabbit import RabbitMessage
 from services import create_private_user
 from services import create_wish
+from services import delete_private_user
 from services import delete_wish_by_id
 from services import get_private_users
 from services import get_wishes_by_username
@@ -128,6 +129,20 @@ async def add_private_user_command(
     )
 
 
+async def delete_private_user_command(
+        chat_id: int,
+        username: str,
+        private_username: str,
+        session: aiohttp.ClientSession):
+    await delete_private_user(username, private_username)
+
+    await send_message(
+        session=session,
+        chat_id=chat_id,
+        text=f'private user "{private_username}" deleted successfully',
+    )
+
+
 async def message_handler(
         rb_message: RabbitMessage,
         session: aiohttp.ClientSession) -> None:
@@ -187,6 +202,19 @@ async def message_handler(
             username=rb_message.username,
             wish_index=first_argument,
             session=session,
+        )
+    elif command_name == 'deletepu':
+        await delete_private_user_command(
+            chat_id=rb_message.chat_id,
+            username=rb_message.username,
+            private_username=first_argument,
+            session=session,
+        )
+    else:
+        await send_message(
+            session=session,
+            chat_id=rb_message.chat_id,
+            text=f"command doesn't exist",
         )
 
 
