@@ -19,10 +19,12 @@ async def add_command(
         chat_id: int,
         username: str,
         wish: str,
-        session: aiohttp.ClientSession):
+        session: aiohttp.ClientSession,
+        private: bool = False):
     result_of_creating = await create_wish(
         username=username,
         text=wish,
+        private=private
     )
     if result_of_creating:
         await send_message(
@@ -114,6 +116,15 @@ async def message_handler(
             username=rb_message.username,
             wish=' '.join(commands[1:]),
             session=session,
+        )
+    if command_name == 'addpw':
+        # shortening for add private wish
+        await add_command(
+            chat_id=rb_message.chat_id,
+            username=rb_message.username,
+            wish=' '.join(commands[1:]),
+            session=session,
+            private=True
         )
     elif command_name == 'show':
         await show_command(

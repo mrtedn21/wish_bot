@@ -1,6 +1,7 @@
 # This file stores models for db
 import asyncio
 
+from sqlalchemy import Boolean
 from sqlalchemy import Column
 from sqlalchemy import Integer
 from sqlalchemy import String
@@ -22,6 +23,7 @@ class Wish(Base):
     id = Column(Integer, primary_key=True)
     username = Column(String(64))
     text = Column(String(256))
+    private = Column(Boolean, default=False)
 
 
 # This part of file needs to create all tables

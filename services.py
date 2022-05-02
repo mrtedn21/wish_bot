@@ -7,12 +7,16 @@ from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 
 
-async def create_wish(username: str, text: str) -> bool:
+async def create_wish(username: str, text: str, private: bool) -> bool:
     """ If error, function return False """
     async with async_session() as session:
         try:
             await session.execute(
-                insert(Wish).values(username=username, text=text)
+                insert(Wish).values(
+                    username=username,
+                    text=text,
+                    private=private
+                )
             )
         except IntegrityError:
             return False
