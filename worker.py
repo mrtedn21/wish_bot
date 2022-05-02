@@ -9,6 +9,7 @@ from models.rabbit import RabbitMessage
 from services import create_private_user
 from services import create_wish
 from services import delete_wish_by_id
+from services import get_private_users
 from services import get_wishes_by_username
 
 QUEUE_NAME = 'wish'
@@ -37,7 +38,7 @@ async def add_command(
         await send_message(
             session=session,
             chat_id=chat_id,
-            text='user already have such wish',
+            text='you already have such wish',
         )
 
 
@@ -92,6 +93,21 @@ async def delete_command(
         session=session,
         chat_id=chat_id,
         text=f'successfully delete wish "{wish_for_deleting[1]}"',
+    )
+
+
+async def show_private_users_command(
+        chat_id: int,
+        username: str,
+        session: aiohttp.ClientSession):
+    private_users = await get_private_users(username)
+    private_users = [f'* {pu[0]}' for pu in private_users]
+    private_users_str = NEW_LINE_CHARACTER.join(private_users)
+
+    await send_message(
+        session=session,
+        chat_id=chat_id,
+        text=f'your private users:{NEW_LINE_CHARACTER}{private_users_str}',
     )
 
 
@@ -157,6 +173,12 @@ async def message_handler(
             chat_id=rb_message.chat_id,
             sender_of_command=rb_message.username,
             owner_of_wishes=first_argument,
+            session=session,
+        )
+    elif command_name == 'showpu':
+        await show_private_users_command(
+            chat_id=rb_message.chat_id,
+            username=rb_message.username,
             session=session,
         )
     elif command_name == 'delete':

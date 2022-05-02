@@ -33,8 +33,7 @@ async def get_wishes_by_username(username: str):
                 .where(Wish.username == username)
                 .order_by(Wish.text)
         )
-        wishes = result.fetchall()
-        return wishes
+        return result.fetchall()
 
 
 async def delete_wish_by_id(pk: int) -> None:
@@ -55,3 +54,12 @@ async def create_private_user(user: str, private_user: str) -> None:
             )
         )
         await session.commit()
+
+
+async def get_private_users(username: str):
+    async with async_session() as session:
+        result = await session.execute(
+            select(PrivateUser.private_user)
+                .where(PrivateUser.user == username)
+        )
+        return result.fetchall()
