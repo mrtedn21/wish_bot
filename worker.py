@@ -43,6 +43,23 @@ async def add_command(
         )
 
 
+async def add_private_user_command(
+        chat_id: int,
+        username: str,
+        private_username: str,
+        session: aiohttp.ClientSession) -> None:
+    await create_private_user(
+        username,
+        private_username
+    )
+
+    await send_message(
+        session=session,
+        chat_id=chat_id,
+        text=f'private user successfully added',
+    )
+
+
 async def show_command(
         chat_id: int,
         sender_of_command: str,
@@ -71,6 +88,21 @@ async def show_command(
     )
 
 
+async def show_private_users_command(
+        chat_id: int,
+        username: str,
+        session: aiohttp.ClientSession):
+    private_users = await get_private_users(username)
+    private_users = [f'* {pu[0]}' for pu in private_users]
+    private_users_str = NEW_LINE_CHARACTER.join(private_users)
+
+    await send_message(
+        session=session,
+        chat_id=chat_id,
+        text=f'your private users:{NEW_LINE_CHARACTER}{private_users_str}',
+    )
+
+
 async def delete_command(
         chat_id: int,
         username: str,
@@ -94,38 +126,6 @@ async def delete_command(
         session=session,
         chat_id=chat_id,
         text=f'successfully delete wish "{wish_for_deleting[1]}"',
-    )
-
-
-async def show_private_users_command(
-        chat_id: int,
-        username: str,
-        session: aiohttp.ClientSession):
-    private_users = await get_private_users(username)
-    private_users = [f'* {pu[0]}' for pu in private_users]
-    private_users_str = NEW_LINE_CHARACTER.join(private_users)
-
-    await send_message(
-        session=session,
-        chat_id=chat_id,
-        text=f'your private users:{NEW_LINE_CHARACTER}{private_users_str}',
-    )
-
-
-async def add_private_user_command(
-        chat_id: int,
-        username: str,
-        private_username: str,
-        session: aiohttp.ClientSession) -> None:
-    await create_private_user(
-        username,
-        private_username
-    )
-
-    await send_message(
-        session=session,
-        chat_id=chat_id,
-        text=f'private user successfully added',
     )
 
 
