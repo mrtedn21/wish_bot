@@ -24,6 +24,7 @@ async def main() -> None:
                     rb_message = RabbitMessage(
                         chat_id=update.message.chat.id,
                         text=update.message.text,
+                        username=update.message.chat.username,
                     )
 
                     await channel.default_exchange.publish(
