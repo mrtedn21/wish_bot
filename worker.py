@@ -19,11 +19,11 @@ async def add_command(
         username: str,
         wish: str,
         session: aiohttp.ClientSession):
-    creating_result = await create_wish(
+    result_of_creating = await create_wish(
         username=username,
         text=wish,
     )
-    if creating_result:
+    if result_of_creating:
         await send_message(
             session=session,
             chat_id=chat_id,

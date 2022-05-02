@@ -23,8 +23,8 @@ async def get_wishes_by_username(username: str):
     async with async_session() as session:
         result = await session.execute(
             select(Wish.text)
-            .where(Wish.username == username)
-            .order_by(Wish.text)
+                .where(Wish.username == username)
+                .order_by(Wish.text)
         )
         wishes = result.fetchall()
         # result of fetchall is, for example:
