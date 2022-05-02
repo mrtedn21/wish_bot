@@ -45,12 +45,12 @@ async def delete_wish_by_id(pk: int) -> None:
         await session.commit()
 
 
-async def create_private_user(user: str, private_user: str) -> None:
+async def create_private_user(username: str, private_username: str) -> None:
     async with async_session() as session:
         await session.execute(
             insert(PrivateUser).values(
-                user=user,
-                private_user=private_user
+                username=username,
+                private_username=private_username
             )
         )
         await session.commit()
@@ -59,8 +59,8 @@ async def create_private_user(user: str, private_user: str) -> None:
 async def get_private_users(username: str):
     async with async_session() as session:
         result = await session.execute(
-            select(PrivateUser.private_user)
-                .where(PrivateUser.user == username)
+            select(PrivateUser.private_username)
+                .where(PrivateUser.username == username)
         )
         return result.fetchall()
 
@@ -69,6 +69,6 @@ async def delete_private_user(username: str, private_username: str):
     async with async_session() as session:
         await session.execute(
             delete(PrivateUser)
-                .where(PrivateUser.private_user == private_username)
+                .where(PrivateUser.private_username == private_username)
         )
         await session.commit()

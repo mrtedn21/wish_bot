@@ -30,8 +30,8 @@ class PrivateUser(Base):
     """ there are usernames in user and private_user.
     'private_user' will see private messages of 'user' """
     __tablename__ = 'private_users'
-    user = Column(String(64), primary_key=True)
-    private_user = Column(String(64), primary_key=True)
+    username = Column(String(64), primary_key=True)
+    private_username = Column(String(64), primary_key=True)
 
 
 # This part of file needs to create all tables

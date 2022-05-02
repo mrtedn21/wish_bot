@@ -93,6 +93,15 @@ async def show_private_users_command(
         username: str,
         session: aiohttp.ClientSession):
     private_users = await get_private_users(username)
+    if not private_users:
+        await send_message(
+            session=session,
+            chat_id=chat_id,
+            text=f"you doesn't have any private users",
+        )
+        return
+
+
     private_users = [f'* {pu[0]}' for pu in private_users]
     private_users_str = NEW_LINE_CHARACTER.join(private_users)
 
@@ -108,6 +117,7 @@ async def delete_command(
         username: str,
         wish_index: str,
         session: aiohttp.ClientSession):
+    # TODO it crashes id delete by not existing index or if there are no wishes at all
     try:
         wish_index = int(wish_index)
     except ValueError:
@@ -119,6 +129,14 @@ async def delete_command(
         return
 
     wishes = await get_wishes_by_username(username)
+    if len(wishes) <= wish_index:
+        await send_message(
+            session=session,
+            chat_id=chat_id,
+            text=f"you want delete wish thad doesn't exists",
+        )
+        return
+
     wish_for_deleting = wishes[wish_index]
     await delete_wish_by_id(wish_for_deleting[0])
 
@@ -166,7 +184,7 @@ async def message_handler(
             wish=' '.join(commands[1:]),
             session=session,
         )
-    if command_name == 'addpw':
+    elif command_name == 'addpw':
         # shortening for add private wish
         await add_command(
             chat_id=rb_message.chat_id,
@@ -175,7 +193,7 @@ async def message_handler(
             session=session,
             private=True
         )
-    if command_name == 'addpu':
+    elif command_name == 'addpu':
         # shortening for add private user
         await add_private_user_command(
             chat_id=rb_message.chat_id,
