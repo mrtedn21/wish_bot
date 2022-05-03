@@ -192,10 +192,12 @@ async def help_command(chat_id: int, session: aiohttp.ClientSession):
              f"deletepu - delete user from your private list",
     )
 
+
 async def message_handler(
         rb_message: RabbitMessage,
         session: aiohttp.ClientSession) -> None:
-    if not rb_message.text.startswith('/'):
+    if not rb_message.text.startswith('/')\
+            or rb_message.text == '/':
         return
 
     commands = rb_message.text[1:].split(' ')
