@@ -241,6 +241,10 @@ async def main() -> None:
                     try:
                         await message_handler.handle()
                     except BaseException:
+                        await message_handler.send_message(
+                            text='You send some strange command'
+                        )
+                        print(f'Error. messages: {rb_message.text}')
                         logging.error(f'Error whlie message handle. '
                                       f'Message: "{rb_message.text}"')
                     # TODO check if there needs of acknowledge
