@@ -89,7 +89,7 @@ class MessageHandler:
         await send_message(
             session=self.session,
             chat_id=self.rb_message.chat_id,
-            text=f'Private user "{text}" deleted successfully',
+            text=text,
         )
 
     async def add_command(
