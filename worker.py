@@ -83,7 +83,7 @@ class MessageHandler:
         elif command_name == 'help':
             await self.help_command()
         else:
-            await self.send_message(text=f"Command doesn't exist")
+            await self.send_message(f"Command doesn't exist")
 
     async def send_message(self, text):
         await send_message(
@@ -103,9 +103,9 @@ class MessageHandler:
             private=private
         )
         if result_of_creating:
-            await self.send_message(text='Successfully added')
+            await self.send_message('Successfully added')
         else:
-            await self.send_message(text='You already have such wish')
+            await self.send_message('You already have such wish')
 
     async def add_private_user_command(
             self,
@@ -117,7 +117,7 @@ class MessageHandler:
         )
 
         await self.send_message(
-            text=f'Private user successfully added'
+            f'Private user successfully added'
         )
 
     async def show_command(
@@ -144,7 +144,7 @@ class MessageHandler:
 
         if not wishes:
             await self.send_message(
-                text=f'There are no wishes for user "{username}"'
+                f'There are no wishes for user "{username}"'
             )
             return
 
@@ -154,14 +154,14 @@ class MessageHandler:
 
         result_text = NEW_LINE_CHARACTER.join(indexed_wishes)
         await self.send_message(
-            text=f'Wishes of user "{username}" is:{NEW_LINE_CHARACTER}{result_text}'
+            f'Wishes of user "{username}" is:{NEW_LINE_CHARACTER}{result_text}'
         )
 
     async def show_private_users_command(self, username: str):
         private_users = await get_private_users(username)
         if not private_users:
             await self.send_message(
-                text=f"You doesn't have any private users"
+                f"You doesn't have any private users"
             )
             return
 
@@ -169,7 +169,7 @@ class MessageHandler:
         private_users_str = NEW_LINE_CHARACTER.join(private_users)
 
         await self.send_message(
-            text=f'Your private users:{NEW_LINE_CHARACTER}{private_users_str}'
+            f'Your private users:{NEW_LINE_CHARACTER}{private_users_str}'
         )
 
     async def delete_command(self, username: str, wish_index: str):
@@ -177,13 +177,13 @@ class MessageHandler:
         try:
             wish_index = int(wish_index)
         except ValueError:
-            await self.send_message(text=f'Please, enter valid index')
+            await self.send_message(f'Please, enter valid index')
             return
 
         wishes = await get_wishes_by_username(username)
         if len(wishes) <= wish_index:
             await self.send_message(
-                text=f"You want delete wish thad doesn't exists"
+                f"You want delete wish thad doesn't exists"
             )
             return
 
@@ -191,33 +191,35 @@ class MessageHandler:
         await delete_wish_by_id(wish_for_deleting[0])
 
         await self.send_message(
-            text=f'Successfully delete wish "{wish_for_deleting[1]}"'
+            f'Successfully delete wish "{wish_for_deleting[1]}"'
         )
 
     async def delete_private_user_command(self, username: str, private_username: str):
         await delete_private_user(username, private_username)
 
         await self.send_message(
-            text=f'Private user "{private_username}" deleted successfully'
+            f'Private user "{private_username}" deleted successfully'
         )
 
     async def help_command(self):
         await self.send_message(
-            text=f"add - add new wish{NEW_LINE_CHARACTER}"
-                 f"addpw - add new private wish, that will be seen only"
-                 f"by users that you add to your private user list{NEW_LINE_CHARACTER}"
-                 f"addpu - add private user to your private user list about"
-                 f"which wtitten above{NEW_LINE_CHARACTER}"
-                 f"show - if write only show, without any parameters,"
-                 f"you will see your wishes. If you will add username"
-                 f"as parameter, you will see wishes of this user."
-                 f"If you in his private list, you will see all his wishes."
-                 f"If there are no you in his private list, you will"
-                 f"see only his public wishes{NEW_LINE_CHARACTER}"
-                 f"showpu - show private users, that you have added{NEW_LINE_CHARACTER}"
-                 f"delete - delete wish by index that you see in"
-                 f"'show' command{NEW_LINE_CHARACTER}"
-                 f"deletepu - delete user from your private list",
+            f"add - add new wish{NEW_LINE_CHARACTER}"
+            f"addpw - add new private wish, that will be seen only"
+            f"by users that you add to your private user"
+            f"list{NEW_LINE_CHARACTER}"
+            f"addpu - add private user to your private user list about"
+            f"which wtitten above{NEW_LINE_CHARACTER}"
+            f"show - if write only show, without any parameters,"
+            f"you will see your wishes. If you will add username"
+            f"as parameter, you will see wishes of this user."
+            f"If you in his private list, you will see all his wishes."
+            f"If there are no you in his private list, you will"
+            f"see only his public wishes{NEW_LINE_CHARACTER}"
+            f"showpu - show private users, that you"
+            f"have added{NEW_LINE_CHARACTER}"
+            f"delete - delete wish by index that you see in"
+            f"'show' command{NEW_LINE_CHARACTER}"
+            f"deletepu - delete user from your private list",
         )
 
 
@@ -242,7 +244,7 @@ async def main() -> None:
                         await message_handler.handle()
                     except BaseException:
                         await message_handler.send_message(
-                            text='You send some strange command'
+                            'You send some strange command'
                         )
                         print(f'Error. messages: {rb_message.text}')
                         logging.error(f'Error whlie message handle. '
