@@ -19,19 +19,18 @@ async def main() -> None:
 
         while True:
             response = await get_updates(session)
-            if response:
-                for update in response.result:
-                    rb_message = RabbitMessage(
-                        chat_id=update.message.chat.id,
-                        text=update.message.text,
-                        username=update.message.chat.username,
-                    )
+            for message in response.correct_messages:
+                rb_message = RabbitMessage(
+                    chat_id=message.chat.id,
+                    text=message.text,
+                    username=message.chat.username,
+                )
 
-                    await channel.default_exchange.publish(
-                        Message(rb_message.to_bin()),
-                        routing_key=QUEUE_NAME,
-                    )
-                    # TODO make checking if result of sending message is ok
+                await channel.default_exchange.publish(
+                    Message(rb_message.to_bin()),
+                    routing_key=QUEUE_NAME,
+                )
+                # TODO make checking if result of sending message is ok
 
 
 if __name__ == '__main__':

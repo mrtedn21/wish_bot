@@ -20,9 +20,9 @@ class Chat:
 
 class Message:
     def __init__(self, obj):
-        self.message_id: int = obj['message_id']
-        self.text: str = obj['text']
-        self.chat: Chat = Chat(obj['chat'])
+        self.message_id: int = obj.get('message_id', None)
+        self.text: str = obj.get('text', None)
+        self.chat: Chat = Chat(obj.get('chat', None))
 
         entities = obj.get('entities', [])
         self.entities: list[Entity] = [Entity(i) for i in entities]
@@ -46,3 +46,18 @@ class ApiResponse:
     def last_update_id(self):
         if self.result:
             return self.result[-1].update_id
+
+    @property
+    def correct_messages(self) -> list[Message]:
+        if not self.result:
+            return []
+
+        result = []
+
+        for update in self.result:
+            if update.message\
+                    and update.message.text\
+                    and update.message.chat:
+                result.append(update.message)
+
+        return result
