@@ -1,4 +1,5 @@
 import asyncio
+import logging
 
 import aiohttp
 from aio_pika import connect_robust
@@ -222,6 +223,10 @@ class MessageHandler:
 
 async def main() -> None:
     connection = await connect_robust(host='localhost')
+    logging.basicConfig(
+        filename='bot.log',
+        encoding='utf-8',
+        level=logging.DEBUG)
 
     async with aiohttp.ClientSession() as session, connection:
         channel = await connection.channel()
@@ -233,7 +238,11 @@ async def main() -> None:
                 async with message.process():
                     rb_message = RabbitMessage(bin_data=message.body)
                     message_handler = MessageHandler(session, rb_message)
-                    await message_handler.handle()
+                    try:
+                        await message_handler.handle()
+                    except BaseException:
+                        logging.error(f'Error whlie message handle. '
+                                      f'Message: "{rb_message.text}"')
                     # TODO check if there needs of acknowledge
 
     await engine.dispose()
