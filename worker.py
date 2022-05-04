@@ -19,258 +19,204 @@ QUEUE_NAME = 'wish'
 NEW_LINE_CHARACTER = '%0A'
 
 
-async def add_command(
-        chat_id: int,
-        username: str,
-        wish: str,
-        session: aiohttp.ClientSession,
-        private: bool = False):
-    result_of_creating = await create_wish(
-        username=username,
-        text=wish,
-        private=private
-    )
-    if result_of_creating:
+class MessageHandler:
+    def __init__(
+            self,
+            session: aiohttp.ClientSession,
+            rb_message: RabbitMessage):
+        self.session = session
+        self.rb_message = rb_message
+
+    async def handle(self) -> None:
+        if not self.rb_message.text.startswith('/')\
+                or self.rb_message.text == '/':
+            return
+
+        commands = self.rb_message.text[1:].split(' ')
+        # remove elements = spaces. Need for case if user will
+        # write commands with several spaces between commands
+        commands = [command for command in commands if command]
+        try:
+            first_argument = commands[1]
+        except IndexError:
+            first_argument = None
+        command_name = commands[0].lower()
+
+        if command_name == 'add':
+            await self.add_command(
+                username=self.rb_message.username,
+                wish=' '.join(commands[1:]),
+            )
+        elif command_name == 'addpw':
+            # shortening for add private wish
+            await self.add_command(
+                username=self.rb_message.username,
+                wish=' '.join(commands[1:]),
+                private=True
+            )
+        elif command_name == 'addpu':
+            # shortening for add private user
+            await self.add_private_user_command(
+                username=self.rb_message.username,
+                private_username=first_argument,
+            )
+        elif command_name == 'show':
+            await self.show_command(
+                sender_of_command=self.rb_message.username,
+                owner_of_wishes=first_argument,
+            )
+        elif command_name == 'showpu':
+            await self.show_private_users_command(
+                username=self.rb_message.username,
+            )
+        elif command_name == 'delete':
+            await self.delete_command(
+                username=self.rb_message.username,
+                wish_index=first_argument,
+            )
+        elif command_name == 'deletepu':
+            await self.delete_private_user_command(
+                username=self.rb_message.username,
+                private_username=first_argument,
+            )
+        elif command_name == 'help':
+            await self.help_command()
+        else:
+            await self.send_message(text=f"Command doesn't exist")
+
+    async def send_message(self, text):
         await send_message(
-            session=session,
-            chat_id=chat_id,
-            text='Successfully added',
-        )
-    else:
-        await send_message(
-            session=session,
-            chat_id=chat_id,
-            text='You already have such wish',
+            session=self.session,
+            chat_id=self.rb_message.chat_id,
+            text=f'Private user "{text}" deleted successfully',
         )
 
+    async def add_command(
+            self,
+            username: str,
+            wish: str,
+            private: bool = False):
+        result_of_creating = await create_wish(
+            username=username,
+            text=wish,
+            private=private
+        )
+        if result_of_creating:
+            await self.send_message(text='Successfully added')
+        else:
+            await self.send_message(text='You already have such wish')
 
-async def add_private_user_command(
-        chat_id: int,
-        username: str,
-        private_username: str,
-        session: aiohttp.ClientSession) -> None:
-    await create_private_user(
-        username,
-        private_username
-    )
+    async def add_private_user_command(
+            self,
+            username: str,
+            private_username: str):
+        await create_private_user(
+            username,
+            private_username
+        )
 
-    await send_message(
-        session=session,
-        chat_id=chat_id,
-        text=f'Private user successfully added',
-    )
+        await self.send_message(
+            text=f'Private user successfully added'
+        )
 
+    async def show_command(
+            self,
+            sender_of_command: str,
+            owner_of_wishes: str) -> None:
+        username = owner_of_wishes or sender_of_command
 
-async def show_command(
-        chat_id: int,
-        sender_of_command: str,
-        owner_of_wishes: str,
-        session: aiohttp.ClientSession) -> None:
-    username = owner_of_wishes or sender_of_command
+        if sender_of_command == owner_of_wishes or owner_of_wishes is None:
+            is_private_user = True
+        else:
+            is_private_user = await get_private_user(
+                owner_of_wishes,
+                sender_of_command
+            )
 
-    if sender_of_command == owner_of_wishes or owner_of_wishes is None:
-        is_private_user = True
-    else:
-        is_private_user = await get_private_user(owner_of_wishes, sender_of_command)
+        if is_private_user:
+            wishes = await get_wishes_by_username(
+                username,
+                include_private=True
+            )
+        else:
+            wishes = await get_wishes_by_username(username)
 
-    if is_private_user:
-        wishes = await get_wishes_by_username(username, include_private=True)
-    else:
+        if not wishes:
+            await self.send_message(
+                text=f'There are no wishes for user "{username}"'
+            )
+            return
+
+        indexed_wishes = []
+        for index, wish in enumerate(wishes):
+            indexed_wishes.append(f'{index}. {wish[1]}')
+
+        result_text = NEW_LINE_CHARACTER.join(indexed_wishes)
+        await self.send_message(
+            text=f'Wishes of user "{username}" is:{NEW_LINE_CHARACTER}{result_text}'
+        )
+
+    async def show_private_users_command(self, username: str):
+        private_users = await get_private_users(username)
+        if not private_users:
+            await self.send_message(
+                text=f"You doesn't have any private users"
+            )
+            return
+
+        private_users = [f'* {pu[0]}' for pu in private_users]
+        private_users_str = NEW_LINE_CHARACTER.join(private_users)
+
+        await self.send_message(
+            text=f'Your private users:{NEW_LINE_CHARACTER}{private_users_str}'
+        )
+
+    async def delete_command(self, username: str, wish_index: str):
+        # TODO it crashes id delete by not existing index or if there are no wishes at all
+        try:
+            wish_index = int(wish_index)
+        except ValueError:
+            await self.send_message(text=f'Please, enter valid index')
+            return
+
         wishes = await get_wishes_by_username(username)
+        if len(wishes) <= wish_index:
+            await self.send_message(
+                text=f"You want delete wish thad doesn't exists"
+            )
+            return
 
-    if not wishes:
-        await send_message(
-            session=session,
-            chat_id=chat_id,
-            text=f'There are no wishes for user "{username}"',
+        wish_for_deleting = wishes[wish_index]
+        await delete_wish_by_id(wish_for_deleting[0])
+
+        await self.send_message(
+            text=f'Successfully delete wish "{wish_for_deleting[1]}"'
         )
-        return
 
-    indexed_wishes = []
-    for index, wish in enumerate(wishes):
-        indexed_wishes.append(f'{index}. {wish[1]}')
+    async def delete_private_user_command(self, username: str, private_username: str):
+        await delete_private_user(username, private_username)
 
-    result_text = NEW_LINE_CHARACTER.join(indexed_wishes)
-    await send_message(
-        session=session,
-        chat_id=chat_id,
-        text=f'Wishes of user "{username}" is:{NEW_LINE_CHARACTER}{result_text}',
-    )
-
-
-async def show_private_users_command(
-        chat_id: int,
-        username: str,
-        session: aiohttp.ClientSession):
-    private_users = await get_private_users(username)
-    if not private_users:
-        await send_message(
-            session=session,
-            chat_id=chat_id,
-            text=f"You doesn't have any private users",
+        await self.send_message(
+            text=f'Private user "{private_username}" deleted successfully'
         )
-        return
 
-
-    private_users = [f'* {pu[0]}' for pu in private_users]
-    private_users_str = NEW_LINE_CHARACTER.join(private_users)
-
-    await send_message(
-        session=session,
-        chat_id=chat_id,
-        text=f'Your private users:{NEW_LINE_CHARACTER}{private_users_str}',
-    )
-
-
-async def delete_command(
-        chat_id: int,
-        username: str,
-        wish_index: str,
-        session: aiohttp.ClientSession):
-    # TODO it crashes id delete by not existing index or if there are no wishes at all
-    try:
-        wish_index = int(wish_index)
-    except ValueError:
-        await send_message(
-            session=session,
-            chat_id=chat_id,
-            text=f'Please, enter valid index',
-        )
-        return
-
-    wishes = await get_wishes_by_username(username)
-    if len(wishes) <= wish_index:
-        await send_message(
-            session=session,
-            chat_id=chat_id,
-            text=f"You want delete wish thad doesn't exists",
-        )
-        return
-
-    wish_for_deleting = wishes[wish_index]
-    await delete_wish_by_id(wish_for_deleting[0])
-
-    await send_message(
-        session=session,
-        chat_id=chat_id,
-        text=f'Successfully delete wish "{wish_for_deleting[1]}"',
-    )
-
-
-async def delete_private_user_command(
-        chat_id: int,
-        username: str,
-        private_username: str,
-        session: aiohttp.ClientSession):
-    await delete_private_user(username, private_username)
-
-    await send_message(
-        session=session,
-        chat_id=chat_id,
-        text=f'Private user "{private_username}" deleted successfully',
-    )
-
-
-async def help_command(chat_id: int, session: aiohttp.ClientSession):
-    await send_message(
-        session=session,
-        chat_id=chat_id,
-        text=f"add - add new wish{NEW_LINE_CHARACTER}"
-             f"addpw - add new private wish, that will be seen only"
-             f"by users that you add to your private user list{NEW_LINE_CHARACTER}"
-             f"addpu - add private user to your private user list about"
-             f"which wtitten above{NEW_LINE_CHARACTER}"
-             f"show - if write only show, without any parameters,"
-             f"you will see your wishes. If you will add username"
-             f"as parameter, you will see wishes of this user."
-             f"If you in his private list, you will see all his wishes."
-             f"If there are no you in his private list, you will"
-             f"see only his public wishes{NEW_LINE_CHARACTER}"
-             f"showpu - show private users, that you have added{NEW_LINE_CHARACTER}"
-             f"delete - delete wish by index that you see in"
-             f"'show' command{NEW_LINE_CHARACTER}"
-             f"deletepu - delete user from your private list",
-    )
-
-
-async def message_handler(
-        rb_message: RabbitMessage,
-        session: aiohttp.ClientSession) -> None:
-    if not rb_message.text.startswith('/')\
-            or rb_message.text == '/':
-        return
-
-    commands = rb_message.text[1:].split(' ')
-    # remove elements = spaces. Need for case if user will
-    # write commands with several spaces between commands
-    commands = [command for command in commands if command]
-    try:
-        first_argument = commands[1]
-    except IndexError:
-        first_argument = None
-    command_name = commands[0].lower()
-
-    if command_name == 'add':
-        await add_command(
-            chat_id=rb_message.chat_id,
-            username=rb_message.username,
-            wish=' '.join(commands[1:]),
-            session=session,
-        )
-    elif command_name == 'addpw':
-        # shortening for add private wish
-        await add_command(
-            chat_id=rb_message.chat_id,
-            username=rb_message.username,
-            wish=' '.join(commands[1:]),
-            session=session,
-            private=True
-        )
-    elif command_name == 'addpu':
-        # shortening for add private user
-        await add_private_user_command(
-            chat_id=rb_message.chat_id,
-            username=rb_message.username,
-            private_username=first_argument,
-            session=session,
-        )
-    elif command_name == 'show':
-        await show_command(
-            chat_id=rb_message.chat_id,
-            sender_of_command=rb_message.username,
-            owner_of_wishes=first_argument,
-            session=session,
-        )
-    elif command_name == 'showpu':
-        await show_private_users_command(
-            chat_id=rb_message.chat_id,
-            username=rb_message.username,
-            session=session,
-        )
-    elif command_name == 'delete':
-        await delete_command(
-            chat_id=rb_message.chat_id,
-            username=rb_message.username,
-            wish_index=first_argument,
-            session=session,
-        )
-    elif command_name == 'deletepu':
-        await delete_private_user_command(
-            chat_id=rb_message.chat_id,
-            username=rb_message.username,
-            private_username=first_argument,
-            session=session,
-        )
-    elif command_name == 'help':
-        await help_command(
-            chat_id=rb_message.chat_id,
-            session=session,
-        )
-    else:
-        await send_message(
-            session=session,
-            chat_id=rb_message.chat_id,
-            text=f"Command doesn't exist",
+    async def help_command(self):
+        await self.send_message(
+            text=f"add - add new wish{NEW_LINE_CHARACTER}"
+                 f"addpw - add new private wish, that will be seen only"
+                 f"by users that you add to your private user list{NEW_LINE_CHARACTER}"
+                 f"addpu - add private user to your private user list about"
+                 f"which wtitten above{NEW_LINE_CHARACTER}"
+                 f"show - if write only show, without any parameters,"
+                 f"you will see your wishes. If you will add username"
+                 f"as parameter, you will see wishes of this user."
+                 f"If you in his private list, you will see all his wishes."
+                 f"If there are no you in his private list, you will"
+                 f"see only his public wishes{NEW_LINE_CHARACTER}"
+                 f"showpu - show private users, that you have added{NEW_LINE_CHARACTER}"
+                 f"delete - delete wish by index that you see in"
+                 f"'show' command{NEW_LINE_CHARACTER}"
+                 f"deletepu - delete user from your private list",
         )
 
 
@@ -286,7 +232,8 @@ async def main() -> None:
             async for message in queue_iter:
                 async with message.process():
                     rb_message = RabbitMessage(bin_data=message.body)
-                    await message_handler(rb_message, session)
+                    message_handler = MessageHandler(session, rb_message)
+                    await message_handler.handle()
                     # TODO check if there needs of acknowledge
 
     await engine.dispose()
