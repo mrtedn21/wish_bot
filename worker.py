@@ -184,7 +184,7 @@ class MessageHandler:
             await self.send_message(f'Please, enter valid index')
             return
 
-        wishes = await get_wishes_by_username(username)
+        wishes = await get_wishes_by_username(username, include_private=True)
         if len(wishes) <= wish_index:
             await self.send_message(
                 f"You want delete wish thad doesn't exists"
