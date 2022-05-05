@@ -165,7 +165,7 @@ class MessageHandler:
         private_users = await get_private_users(username)
         if not private_users:
             await self.send_message(
-                f"You doesn't have any private users"
+                f"You don't have any private users"
             )
             return
 
