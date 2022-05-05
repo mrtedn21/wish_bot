@@ -97,6 +97,10 @@ class MessageHandler:
             username: str,
             wish: str,
             private: bool = False):
+        if not wish:
+            await self.send_message('You want to add empty wish')
+            return
+
         result_of_creating = await create_wish(
             username=username,
             text=wish,
