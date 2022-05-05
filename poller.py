@@ -33,6 +33,12 @@ async def main() -> None:
                 logging.error(f'Error whlie response handle. '
                               f'Raw response: "{raw_response}"')
                 print(raw_response)
+                # This needs because creating of ApiResponse crashes sometimes with
+                # incorrectly commands. This must bugs must be fixed in the future,
+                # but at moment bot must work and only pass this incorrectly command
+                # and log details about it to fix this bug
+                update_id = raw_response['result'][-1]['update_id']
+                continue
 
             for message in response.correct_messages:
                 rb_message = RabbitMessage(
