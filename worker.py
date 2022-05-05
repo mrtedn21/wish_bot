@@ -226,7 +226,7 @@ class MessageHandler:
 async def main() -> None:
     connection = await connect_robust(host='localhost')
     logging.basicConfig(
-        filename='bot.log',
+        filename='worker.log',
         encoding='utf-8',
         level=logging.DEBUG)
 

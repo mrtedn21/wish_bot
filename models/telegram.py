@@ -43,6 +43,7 @@ class ApiResponse:
         else:
             self.result = None
 
+    @property
     def last_update_id(self):
         if self.result:
             return self.result[-1].update_id
