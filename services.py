@@ -39,7 +39,7 @@ async def get_wishes_by_username(username: str, include_private=False):
                 select(Wish.id, Wish.text)
                     .where(
                         (Wish.username == username) &
-                        (Wish.private is False)
+                        (Wish.private == False)
                     )
                     .order_by(Wish.text)
             )
