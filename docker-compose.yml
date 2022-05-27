@@ -1,0 +1,50 @@
+version: '3.8'
+services:
+  rabbit:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq/
+      - rabbitmq_log:/var/log/rabbitmq/
+
+  db:
+    image: postgres:14.1-alpine
+    container_name: pg_container
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  poller:
+    container_name: poller
+    build:
+      context: ./
+      dockerfile: poller.Dockerfile
+    restart: on-failure
+    depends_on:
+      - rabbit
+
+  worker:
+    container_name: worker
+    build:
+      context: ./
+      dockerfile: worker.Dockerfile
+    restart: on-failure
+    depends_on:
+      - rabbit
+      - db
+
+volumes:
+  db:
+    driver: local
+  rabbitmq_data:
+    driver: local
+  rabbitmq_log:
+    driver: local

@@ -13,12 +13,12 @@ QUEUE_NAME = 'wish'
 
 
 async def main() -> None:
-    connection = await connect_robust(host='localhost')
+    connection = await connect_robust(host='rabbit')
     update_id = None
-    logging.basicConfig(
-        filename='poller.log',
-        encoding='utf-8',
-        level=logging.DEBUG)
+    # logging.basicConfig(
+    #     filename='poller.log',
+    #     encoding='utf-8',
+    #     level=logging.DEBUG)
 
     async with aiohttp.ClientSession() as session, connection:
         channel = await connection.channel()
@@ -30,8 +30,8 @@ async def main() -> None:
                 response = ApiResponse(raw_response)
                 update_id = response.last_update_id
             except BaseException:
-                logging.error(f'Error whlie response handle. '
-                              f'Raw response: "{raw_response}"')
+                # logging.error(f'Error whlie response handle. '
+                #               f'Raw response: "{raw_response}"')
                 print(raw_response)
                 # This needs because creating of ApiResponse crashes sometimes with
                 # incorrectly commands. This must bugs must be fixed in the future,

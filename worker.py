@@ -228,11 +228,11 @@ class MessageHandler:
 
 
 async def main() -> None:
-    connection = await connect_robust(host='localhost')
-    logging.basicConfig(
-        filename='worker.log',
-        encoding='utf-8',
-        level=logging.DEBUG)
+    connection = await connect_robust(host='rabbit')
+    # logging.basicConfig(
+    #     filename='worker.log',
+    #     encoding='utf-8',
+    #     level=logging.DEBUG)
 
     async with aiohttp.ClientSession() as session, connection:
         channel = await connection.channel()
@@ -251,8 +251,8 @@ async def main() -> None:
                             'You send some strange command'
                         )
                         print(f'Error. messages: {rb_message.text}')
-                        logging.error(f'Error whlie message handle. '
-                                      f'Message: "{rb_message.text}"')
+                        # logging.error(f'Error whlie message handle. '
+                        #               f'Message: "{rb_message.text}"')
                     # TODO check if there needs of acknowledge
 
     await engine.dispose()

@@ -11,7 +11,7 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-engine = create_async_engine('postgresql+asyncpg://wish_user:123@localhost/wish_db', future=True)
+engine = create_async_engine('postgresql+asyncpg://wish_user:123@db/wish_db', future=True)
 Base = declarative_base()
 async_session = sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession

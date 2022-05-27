@@ -54,7 +54,8 @@ class ApiResponse:
             return []
 
         result = []
-
+        
+        # TODO move checking of message to message class
         for update in self.result:
             if update.message\
                     and update.message.text\
