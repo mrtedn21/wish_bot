@@ -3,6 +3,7 @@ services:
   rabbit:
     image: rabbitmq:3-management-alpine
     container_name: rabbit
+    restart: always
     ports:
       - "5672:5672"
       - "15672:15672"
@@ -27,7 +28,7 @@ services:
     build:
       context: ./
       dockerfile: poller.Dockerfile
-    restart: on-failure
+    restart: always
     depends_on:
       - rabbit
 
@@ -36,7 +37,7 @@ services:
     build:
       context: ./
       dockerfile: worker.Dockerfile
-    restart: on-failure
+    restart: always
     depends_on:
       - rabbit
       - db
