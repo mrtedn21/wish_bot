@@ -3,9 +3,11 @@ import logging
 
 import aiohttp
 from aio_pika import connect_robust
+from sqlalchemy.exc import ProgrammingError
 
 from api_functions import send_message
 from models.database import engine
+from models.database import main as create_tables
 from models.rabbit import RabbitMessage
 from services import create_private_user
 from services import create_wish
@@ -228,6 +230,11 @@ class MessageHandler:
 
 
 async def main() -> None:
+    try:
+        await create_tables()
+    except ProgrammingError:
+        pass
+
     connection = await connect_robust(host='rabbit')
     # logging.basicConfig(
     #     filename='worker.log',
@@ -246,11 +253,12 @@ async def main() -> None:
                     message_handler = MessageHandler(session, rb_message)
                     try:
                         await message_handler.handle()
-                    except BaseException:
+                    except BaseException as e:
                         await message_handler.send_message(
                             'You send some strange command'
                         )
                         print(f'Error. messages: {rb_message.text}')
+                        print(e)
                         # logging.error(f'Error whlie message handle. '
                         #               f'Message: "{rb_message.text}"')
                     # TODO check if there needs of acknowledge

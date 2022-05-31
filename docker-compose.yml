@@ -13,11 +13,12 @@ services:
 
   db:
     image: postgres:14.1-alpine
-    container_name: pg_container
+    container_name: db
     restart: always
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=wish_user
+      - POSTGRES_PASSWORD=123
+      - POSTGRES_DB=wish_db
     ports:
       - "5432:5432"
     volumes:
@@ -26,8 +27,8 @@ services:
   poller:
     container_name: poller
     build:
-      context: ./
-      dockerfile: poller.Dockerfile
+      context: .
+      dockerfile: deploy/poller.Dockerfile
     restart: always
     depends_on:
       - rabbit
@@ -35,8 +36,8 @@ services:
   worker:
     container_name: worker
     build:
-      context: ./
-      dockerfile: worker.Dockerfile
+      context: .
+      dockerfile: deploy/worker.Dockerfile
     restart: always
     depends_on:
       - rabbit
