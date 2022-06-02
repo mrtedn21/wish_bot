@@ -32,6 +32,10 @@ services:
     restart: always
     depends_on:
       - rabbit
+    volumes:
+      - type: bind
+        source: ./logs/
+        target: /app/logs/
 
   worker:
     container_name: worker
@@ -42,6 +46,10 @@ services:
     depends_on:
       - rabbit
       - db
+    volumes:
+      - type: bind
+        source: ./logs/
+        target: /app/logs/
 
 volumes:
   db:

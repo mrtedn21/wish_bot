@@ -236,10 +236,9 @@ async def main() -> None:
         pass
 
     connection = await connect_robust(host='rabbit')
-    # logging.basicConfig(
-    #     filename='worker.log',
-    #     encoding='utf-8',
-    #     level=logging.DEBUG)
+    logging.basicConfig(
+        filename='logs/worker.log',
+        level=logging.DEBUG)
 
     async with aiohttp.ClientSession() as session, connection:
         channel = await connection.channel()
@@ -257,10 +256,9 @@ async def main() -> None:
                         await message_handler.send_message(
                             'You send some strange command'
                         )
-                        print(f'Error. messages: {rb_message.text}')
-                        print(e)
-                        # logging.error(f'Error whlie message handle. '
-                        #               f'Message: "{rb_message.text}"')
+                        logging.error(f'Error while message handle. '
+                                      f'Message: "{rb_message.text}"')
+                        logging.error(str(e))
                     # TODO check if there needs of acknowledge
 
     await engine.dispose()
