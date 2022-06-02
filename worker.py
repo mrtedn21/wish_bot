@@ -179,7 +179,10 @@ class MessageHandler:
         )
 
     async def delete_command(self, username: str, wish_index: str):
-        # TODO it crashes id delete by not existing index or if there are no wishes at all
+        if wish_index.startswith('-'):
+            await self.send_message(f'Please, enter positive index')
+            return
+
         try:
             wish_index = int(wish_index)
         except ValueError:
@@ -259,7 +262,6 @@ async def main() -> None:
                         logging.error(f'Error while message handle. '
                                       f'Message: "{rb_message.text}"')
                         logging.error(str(e))
-                    # TODO check if there needs of acknowledge
 
     await engine.dispose()
 
