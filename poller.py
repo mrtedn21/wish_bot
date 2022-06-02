@@ -51,7 +51,6 @@ async def main() -> None:
                     Message(rb_message.to_bin()),
                     routing_key=QUEUE_NAME,
                 )
-                # TODO make checking if result of sending message is ok
 
 
 if __name__ == '__main__':

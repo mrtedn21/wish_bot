@@ -34,7 +34,6 @@ class Message:
             return False
 
 
-# TODO test all cases of updates: editing of messages, load pictures, music, emoji and etc.
 class ApiUpdate:
     def __init__(self, obj):
         self.update_id: int = int(obj['update_id'])
