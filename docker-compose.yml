@@ -38,11 +38,13 @@ services:
         target: /app/logs/
 
   worker:
-    container_name: worker
     build:
       context: .
       dockerfile: deploy/worker.Dockerfile
     restart: always
+    deploy:
+      mode: replicated
+      replicas: 3
     depends_on:
       - rabbit
       - db
