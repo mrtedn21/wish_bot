@@ -27,6 +27,12 @@ class Message:
         entities = obj.get('entities', [])
         self.entities: list[Entity] = [Entity(i) for i in entities]
 
+    def is_correct(self):
+        if self.text and self.chat:
+            return True
+        else:
+            return False
+
 
 # TODO test all cases of updates: editing of messages, load pictures, music, emoji and etc.
 class ApiUpdate:
@@ -54,12 +60,8 @@ class ApiResponse:
             return []
 
         result = []
-        
-        # TODO move checking of message to message class
         for update in self.result:
-            if update.message\
-                    and update.message.text\
-                    and update.message.chat:
+            if update.message and update.message.is_correct():
                 result.append(update.message)
 
         return result
