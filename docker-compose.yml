@@ -16,9 +16,9 @@ services:
     container_name: db
     restart: always
     environment:
-      - POSTGRES_USER=wish_user
-      - POSTGRES_PASSWORD=123
-      - POSTGRES_DB=wish_db
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
     ports:
       - "5432:5432"
     volumes:
@@ -30,6 +30,8 @@ services:
       context: .
       dockerfile: deploy/poller.Dockerfile
     restart: always
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     depends_on:
       - rabbit
     volumes:
@@ -42,6 +44,8 @@ services:
       context: .
       dockerfile: deploy/worker.Dockerfile
     restart: always
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
     deploy:
       mode: replicated
       replicas: 3

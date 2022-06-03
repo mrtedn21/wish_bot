@@ -1,10 +1,8 @@
-from pathlib import Path
+import os
 
 import aiohttp
 
-with open(Path(__file__).parent / 'token', 'r') as f:
-    token = f.read()
-
+token = os.environ['TELEGRAM_BOT_TOKEN']
 base_url = f'https://api.telegram.org/{token}'
 
 
