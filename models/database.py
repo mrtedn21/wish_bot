@@ -1,5 +1,6 @@
 # This file stores models for db
 import asyncio
+import os
 
 from sqlalchemy import Boolean
 from sqlalchemy import Column
@@ -11,7 +12,10 @@ from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-engine = create_async_engine('postgresql+asyncpg://wish_user:123@db/wish_db', future=True)
+db_user = os.environ['POSTGRES_USER']
+db_name = os.environ['POSTGRES_DB']
+db_password = os.environ['POSTGRES_PASSWORD']
+engine = create_async_engine(f'postgresql+asyncpg://{db_user}:{db_password}@db/{db_name}', future=True)
 Base = declarative_base()
 async_session = sessionmaker(
     engine, expire_on_commit=False, class_=AsyncSession
