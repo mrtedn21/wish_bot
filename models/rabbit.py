@@ -9,7 +9,7 @@ class RabbitMessage:
                  text: str = None,
                  chat_id: int = None,
                  username: str = None,
-                 bin_data: bin = None):
+                 bin_data: bin = None) -> None:
         if bin_data:
             message_dict = msgpack.unpackb(bin_data)
             self.text = message_dict['text']
@@ -25,5 +25,5 @@ class RabbitMessage:
         else:
             raise TypeError('init must accept bin_data or text and chat_id')
 
-    def to_bin(self):
+    def to_bin(self) -> bytes:
         return msgpack.packb(self.__dict__)

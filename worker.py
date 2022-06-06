@@ -27,12 +27,12 @@ class MessageHandler:
     def __init__(
             self,
             session: aiohttp.ClientSession,
-            rb_message: RabbitMessage):
+            rb_message: RabbitMessage) -> None:
         self.session = session
         self.rb_message = rb_message
 
     async def handle(self) -> None:
-        if not self.rb_message.text.startswith('/')\
+        if not self.rb_message.text.startswith('/') \
                 or self.rb_message.text == '/':
             return
 
@@ -90,7 +90,7 @@ class MessageHandler:
         else:
             await self.send_message(f"Command doesn't exist")
 
-    async def send_message(self, text):
+    async def send_message(self, text: str) -> None:
         await send_message(
             session=self.session,
             chat_id=self.rb_message.chat_id,
@@ -101,7 +101,7 @@ class MessageHandler:
             self,
             username: str,
             wish: str,
-            private: bool = False):
+            private: bool = False) -> None:
         if not wish:
             await self.send_message('You want to add empty wish')
             return
@@ -119,7 +119,7 @@ class MessageHandler:
     async def add_private_user_command(
             self,
             username: str,
-            private_username: str):
+            private_username: str) -> None:
         await create_private_user(
             username,
             private_username
@@ -166,7 +166,7 @@ class MessageHandler:
             f'Wishes of user "{username}" is:{NEW_LINE_CHARACTER}{result_text}'
         )
 
-    async def show_private_users_command(self, username: str):
+    async def show_private_users_command(self, username: str) -> None:
         private_users = await get_private_users(username)
         if not private_users:
             await self.send_message(
@@ -181,7 +181,7 @@ class MessageHandler:
             f'Your private users:{NEW_LINE_CHARACTER}{private_users_str}'
         )
 
-    async def delete_command(self, username: str, wish_index: str):
+    async def delete_command(self, username: str, wish_index: str) -> None:
         if wish_index.startswith('-'):
             await self.send_message(f'Please, enter positive index')
             return
@@ -206,21 +206,24 @@ class MessageHandler:
             f'Successfully delete wish "{wish_for_deleting[1]}"'
         )
 
-    async def delete_private_user_command(self, username: str, private_username: str):
+    async def delete_private_user_command(
+            self,
+            username: str,
+            private_username: str) -> None:
         await delete_private_user(username, private_username)
 
         await self.send_message(
             f'Private user "{private_username}" deleted successfully'
         )
 
-    async def show_all_users(self):
+    async def show_all_users(self) -> None:
         users = await get_all_users()
         users_strings = [f'* {u[0]}' for u in users]
         result = NEW_LINE_CHARACTER.join(users_strings)
 
         await self.send_message(result)
 
-    async def help_command(self):
+    async def help_command(self) -> None:
         await self.send_message(
             f"add - add new wish{NEW_LINE_CHARACTER}"
             f"addpw - add new private wish, that will be seen only"

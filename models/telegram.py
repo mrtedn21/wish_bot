@@ -5,12 +5,12 @@
 
 
 class Entity:
-    def __init__(self, obj):
+    def __init__(self, obj: dict) -> None:
         self.type = obj['type']
 
 
 class Chat:
-    def __init__(self, obj):
+    def __init__(self, obj: dict) -> None:
         self.id: int = obj['id']
         self.username: str = obj['username']
         self.type: str = obj['type']
@@ -19,7 +19,7 @@ class Chat:
 
 
 class Message:
-    def __init__(self, obj):
+    def __init__(self, obj: dict) -> None:
         self.message_id: int = obj.get('message_id', None)
         self.text: str = obj.get('text', None)
         self.chat: Chat = Chat(obj.get('chat', None))
@@ -27,7 +27,7 @@ class Message:
         entities = obj.get('entities', [])
         self.entities: list[Entity] = [Entity(i) for i in entities]
 
-    def is_correct(self):
+    def is_correct(self) -> bool:
         if self.text and self.chat:
             return True
         else:
@@ -35,21 +35,22 @@ class Message:
 
 
 class ApiUpdate:
-    def __init__(self, obj):
+    def __init__(self, obj: dict) -> None:
         self.update_id: int = int(obj['update_id'])
         self.message: Message = Message(obj['message'])
 
 
 class ApiResponse:
-    def __init__(self, obj):
+    def __init__(self, obj: dict) -> None:
         self.ok: str = obj['ok']
         if obj.get('result', []):
-            self.result: list[ApiUpdate] = [ApiUpdate(i) for i in obj['result']]
+            self.result: list[ApiUpdate] = [ApiUpdate(i) for i in
+                                            obj['result']]
         else:
             self.result = None
 
     @property
-    def last_update_id(self):
+    def last_update_id(self) -> int:
         if self.result:
             return self.result[-1].update_id
 
