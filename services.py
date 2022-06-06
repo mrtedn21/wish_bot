@@ -2,6 +2,7 @@
 from sqlalchemy import delete
 from sqlalchemy import insert
 from sqlalchemy import select
+from sqlalchemy import distinct
 from sqlalchemy.exc import IntegrityError
 
 from models.database import PrivateUser
@@ -97,3 +98,11 @@ async def delete_private_user(username: str, private_username: str):
                 )
         )
         await session.commit()
+
+
+async def get_all_users():
+    async with async_session() as session:
+        result = await session.execute(
+            select(distinct(Wish.username))
+        )
+        return result.fetchall()

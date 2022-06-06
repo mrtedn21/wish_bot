@@ -13,6 +13,7 @@ from services import create_private_user
 from services import create_wish
 from services import delete_private_user
 from services import delete_wish_by_id
+from services import get_all_users
 from services import get_private_user
 from services import get_private_users
 from services import get_wishes_by_username
@@ -82,6 +83,8 @@ class MessageHandler:
                 username=self.rb_message.username,
                 private_username=first_argument,
             )
+        elif command_name == 'showau':
+            await self.show_all_users()
         elif command_name == 'help':
             await self.help_command()
         else:
@@ -210,6 +213,13 @@ class MessageHandler:
             f'Private user "{private_username}" deleted successfully'
         )
 
+    async def show_all_users(self):
+        users = await get_all_users()
+        users_strings = [f'* {u[0]}' for u in users]
+        result = NEW_LINE_CHARACTER.join(users_strings)
+
+        await self.send_message(result)
+
     async def help_command(self):
         await self.send_message(
             f"add - add new wish{NEW_LINE_CHARACTER}"
@@ -228,7 +238,10 @@ class MessageHandler:
             f"have added{NEW_LINE_CHARACTER}"
             f"delete - delete wish by index that you see in"
             f"'show' command{NEW_LINE_CHARACTER}"
-            f"deletepu - delete user from your private list",
+            f"deletepu - delete user from your"
+            f"private list{NEW_LINE_CHARACTER}"
+            f"showau - command to show all users in system. "
+            f"It's convenient way to remember username"
         )
 
 
